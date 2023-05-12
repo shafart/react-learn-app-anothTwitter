@@ -17,7 +17,7 @@ const PostForm = ({create}) => {
 
   return (
        <form>
-        {/*Управляемый компоненты инпута*/}
+        {/*Управляемый компонент инпута*/}
         <MyInput
           value={post.title}
           onChange={e => setPost({...post, title: e.target.value})}
