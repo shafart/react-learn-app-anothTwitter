@@ -1,36 +1,38 @@
 import './styles/App.css'
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PostList from "./components/PostList";
 import PostForm from './components/PostForm';
-
 import PostFilter from './components/PostFilter';
+import MyModal from './components/UI/modal/MyModal';
+import MyButton from './components/UI/button/MyButton';
+import { usePosts } from './hooks/usePosts';
+import PostService from './API/PostService';
+import Loader from './components/UI/loader/loader';
 
 function App() {
-  const [posts, setPosts] = useState([
-    { id: 1, title: 'JavaScript 1', body: 'Description 1' },
-    { id: 2, title: 'JavaScript 2', body: 'Description 2' },
-    { id: 3, title: 'JavaScript 3', body: 'Description 3' }
-  ])
+  const [posts, setPosts] = useState([]);
+  const [filter, setFilter] = useState({ sort: '', query: '' });
+  const [modal, setModal] = useState(false);
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
+  const [isPostsLoading, setIsPostsLoading] = useState(false);
 
-  const [filter, setFilter] = useState({sort: '', query: ''})
-
-
-
-  const sortedPosts = useMemo(() => {
-    console.log('отработала функция сортедпостчс')
-    if (filter.sort) {
-      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
-    }
-    return posts;
-
-  }, [filter.sort, posts]);
-
-  const sortedAndSearchedPosts = useMemo (() => {
-    return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query))
-  }, [filter.query, sortedPosts])
+  useEffect (() => {
+    fetchPosts()
+  }, [])
 
   const createPost = (newPost) => {
-    setPosts([...posts, newPost])
+    setPosts([...posts, newPost]);
+    setModal(false);
+  }
+
+  async function fetchPosts() {
+    setIsPostsLoading(true);
+    setTimeout ( async () => {
+      const posts = await PostService.getAll();
+      setPosts(posts); 
+      setIsPostsLoading(false);
+    }, 1500)
+    
   }
 
   const removePost = (post) => {
@@ -40,13 +42,22 @@ function App() {
 
   return (
     <div className="App">
-      <PostForm create={createPost}></PostForm>
+      <MyButton style={{marginTop: 50}} onClick = {() => setModal(true)}>
+        Создать пост
+      </MyButton>
+      <MyModal visible={modal} setVisible={setModal}>
+        <PostForm create={createPost}></PostForm>
+      </MyModal>
       <hr style={{ margin: '15px 0' }} />
-      <PostFilter 
-        filter={filter} 
+      <PostFilter
+        filter={filter}
         setFilter={setFilter}
       />
-      <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Список постов 1" />
+      {isPostsLoading
+        ? <div style={{display: 'flex', justifyContent: 'center', marginTop: '50px'}}><Loader/></div>
+        : <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Список постов 1" />
+      }
+      
     </div>
   );
 }
