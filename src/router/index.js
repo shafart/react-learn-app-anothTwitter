@@ -1,7 +1,7 @@
 import About from "../Pages/About";
 import Posts from "../Pages/Posts";
 import PostIdPage from "../Pages/PostIdPage";
-// import Login from "../pages/Login";
+import Login from "../Pages/Login";
 
 
 export const privateRoutes = [
@@ -10,7 +10,7 @@ export const privateRoutes = [
     {path: '/posts/:id', component: PostIdPage, exact: true},
 ]
 
-// export const publicRoutes = [
-//     {path: '/login', component: Login, exact: true},
-// ]
-
+export const publicRoutes = [
+    {path: '/login', component: Login, exact: true},
+]
+    
